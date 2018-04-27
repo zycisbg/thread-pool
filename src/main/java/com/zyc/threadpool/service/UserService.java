@@ -13,6 +13,8 @@ public interface UserService {
 
     Map massTextingByThreadPoolExecutorAndBarrier();
 
+    Map massTextingByThreadPoolExecutorAndLatchC();
+
     Map massTextingByForkJoinPoolByTask();
 
     void getUserAndMessageRecord() throws Exception;

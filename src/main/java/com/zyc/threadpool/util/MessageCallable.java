@@ -43,7 +43,7 @@ public class MessageCallable implements Callable{
             //如果 没有 countDown  会导致主线程在子线程都执行后也阻塞
             latch.countDown();
             //可以把返回结果在这里返回
-            return null;
+            return user.getId();
         }
     }
 }

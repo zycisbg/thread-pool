@@ -46,4 +46,9 @@ public class ThreadPoolApplicationTests {
 	    userService.massTextingByParallelStream();
     }
 
+    @Test
+    public void test7(){
+	    userService.massTextingByThreadPoolExecutorAndLatchC();
+    }
+
 }

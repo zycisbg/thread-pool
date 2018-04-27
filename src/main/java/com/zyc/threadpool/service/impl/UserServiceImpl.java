@@ -194,6 +194,50 @@ public class UserServiceImpl implements UserService{
 
     }
 
+    @Override
+    public Map massTextingByThreadPoolExecutorAndLatchC() {
+        Map<String,Object> resultMap = new HashMap(2);
+        //创建定长线程池
+        ExecutorService executorService = Executors.newFixedThreadPool(8);
+        CompletionService cs = new ExecutorCompletionService(executorService);
+        //声明倒数计数器
+        CountDownLatch latch = null;
+        //要处理的用户
+        List<User> users = null;
+        long start = System.currentTimeMillis();
+        try {
+            users = this.findAllUser();
+            if(users==null || users.size()==0){
+                resultMap.put("isSuccess",false);
+                resultMap.put("message","没有用户");
+            }else{
+                //通过构造器创建 user总数的通过CountDownLatch
+                latch = new CountDownLatch(users.size());
+                for (User user : users){
+                    //循环执行。通过cs来获取结果
+                    cs.submit(new MessageCallable(user,this,latch));
+                }
+                //主线程阻塞等待所有的子线程循环执行完毕users.size()的数量
+                //如果，子线程中的CountDownLatch没有countDown。await 会一直等待，
+                //当然也可以使用  latch(long timeout, TimeUnit unit)这个方法来规定阻塞多少时间。
+                latch.await();
+                for(int i=0;i<users.size();i++){
+                    System.out.println(cs.take().get());
+                }
+                resultMap.put("isSuccess",true);
+                resultMap.put("message","发送成功");
+            }
+        }catch (Exception e){
+            resultMap.put("isSuccess",false);
+            resultMap.put("message","系统异常");
+        }finally {
+
+            System.out.println("耗时：["+ (System.currentTimeMillis()-start)+"]毫秒");
+            return resultMap;
+        }
+
+    }
+
     public Map massTextingByThreadPoolExecutorAndBarrier(){
         Map<String,Object> resultMap = new HashMap(2);
         List<User> users = this.findAllUser().subList(0,10);
